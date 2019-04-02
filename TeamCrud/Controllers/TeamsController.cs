@@ -40,29 +40,31 @@ namespace TeamCrud.Controllers
         }
 
         // POST api/<controller>
-        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [System.Web.Http.HttpPost]
         public IActionResult Create(TeamItem item)
         {
             Guid g;
             g = Guid.NewGuid();
             var name = item.name;
-            var nameFC = _context.TeamItems.Where(e => e.name == name);
+            var nameFC = _context.TeamItems.Where(e => e.name == name).ToList();
             var location = item.location;
-            var locationFC = _context.TeamItems.Where(e => e.location == location);
+            var locationFC = _context.TeamItems.Where(e => e.location == location).ToList();
+            var wht = _context.TeamItems.Where(e => e.location == location && e.name == name).ToList();
             if (item.players != null)
             {
-                if (item.players.Count > 24)
+                if (item.players.Count >= 24)
                 {
+                    var reasonPhrase = "Too Many Players";
                     var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
                     {
                       Content = new StringContent(string.Format("Over 25 players", item.players)),
                     ReasonPhrase = "Too Many Players"
                     };
                     //throw new HttpResponseException(resp);
-                    return BadRequest();
+                    return BadRequest(reasonPhrase);
                 }
             }
-                else if (nameFC == locationFC)
+                else if (nameFC.Count > 0)
                 {
                 var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
@@ -70,12 +72,13 @@ namespace TeamCrud.Controllers
                     ReasonPhrase = "Name and Location cannot be the same for multiple teams"
                 };
                 //throw new HttpResponseException(resp);
+                Console.WriteLine(nameFC);
                 return BadRequest();
             }
                 item.id = g;
                 _context.TeamItems.Add(item);
                 _context.SaveChanges();
-                return CreatedAtRoute("GetItem", new { id = g }, item);
+                return Ok(nameFC);
 
         }
 
@@ -83,38 +86,37 @@ namespace TeamCrud.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
         public IActionResult Update(Guid id, TeamItem item)
         {
-            var team = _context.TeamItems.Find(id);
-            if (item.players.Count > 24)
+            Guid g;
+            g = Guid.NewGuid();
+            var name = item.name;
+            var nameFC = _context.TeamItems.Where(e => e.name == name).ToList();
+            var location = item.location;
+            var locationFC = _context.TeamItems.Where(e => e.location == location).ToList();
+            var wht = _context.TeamItems.Where(e => e.location == location && e.name == name).ToList();
+            if (item.players != null)
+            {
+                if (item.players.Count >= 24)
+                {
+                    var reasonPhrase = "Too Many Players";
+                    var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent(string.Format("Over 25 players", item.players)),
+                        ReasonPhrase = "Too Many Players"
+                    };
+                    return BadRequest(reasonPhrase);
+                }
+            }
+            else if (nameFC.Count > 0)
             {
                 var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
                 {
-                    Content = new StringContent(string.Format("Over 25 players", item.players)),
-                    ReasonPhrase = "Too Many Players"
+                    Content = new StringContent("Cannot be the Same Name and Location as another Team"),
+                    ReasonPhrase = "Name and Location cannot be the same for multiple teams"
                 };
-                throw new HttpResponseException(resp);
+                return BadRequest();
             }
-            var name = item.name;
-            var nameFC = _context.TeamItems.Find(name);
-            if (nameFC != null)
-            {
-                var location = item.location;
-                if (nameFC.location == location)
-                {
-                    if (nameFC.id != item.id)
-                    {
-                        var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                        {
-                            Content = new StringContent("Cannot be the Same Name and Location as another Team"),
-                            ReasonPhrase = "Name and Location cannot be the same for multiple teams"
-                        };
-                        throw new HttpResponseException(resp);
-                    }
-                }
-            }
-            team.name = item.name;
-            team.location = item.location;
-            team.players = item.players;
-            _context.TeamItems.Update(team);
+            item.id = g;
+            _context.TeamItems.Add(item);
             _context.SaveChanges();
             return NoContent();
         }

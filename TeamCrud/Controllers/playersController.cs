@@ -48,7 +48,7 @@ namespace TeamCrud.Controllers
             item.id = g;
             _context.PlayerItems.Add(item);
             _context.SaveChanges();
-            return CreatedAtRoute("GetPlayerItem", item);
+            return Ok(item);
         }
 
         // PUT api/values/5
