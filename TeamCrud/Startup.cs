@@ -27,6 +27,8 @@ namespace TeamCrud
         {
             services.AddDbContext<TeamContext>(opt =>
                 opt.UseInMemoryDatabase("TeamItems"));
+            services.AddDbContext<PlayerContext>(opt =>
+                opt.UseInMemoryDatabase("PlayerItems"));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                                                           .AllowAnyMethod()

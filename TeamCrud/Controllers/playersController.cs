@@ -15,8 +15,8 @@ namespace TeamCrud.Controllers
     [ApiController]
     public class PlayersController : Controller
     {
-        private readonly TeamContext _context;
-        public PlayersController(TeamContext context)
+        private readonly PlayerContext _context;
+        public PlayersController(PlayerContext context)
         {
             _context = context;
         }

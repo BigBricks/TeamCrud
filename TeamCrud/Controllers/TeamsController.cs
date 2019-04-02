@@ -55,30 +55,18 @@ namespace TeamCrud.Controllers
                 if (item.players.Count >= 24)
                 {
                     var reasonPhrase = "Too Many Players";
-                    var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                      Content = new StringContent(string.Format("Over 25 players", item.players)),
-                    ReasonPhrase = "Too Many Players"
-                    };
-                    //throw new HttpResponseException(resp);
                     return BadRequest(reasonPhrase);
                 }
             }
-                else if (nameFC.Count > 0)
+                else if (wht.Count > 0)
                 {
-                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent("Cannot be the Same Name and Location as another Team"),
-                    ReasonPhrase = "Name and Location cannot be the same for multiple teams"
-                };
-                //throw new HttpResponseException(resp);
-                Console.WriteLine(nameFC);
-                return BadRequest();
+                var reasonPhrase = "Name and Location cannot be the same for multiple teams";
+                return BadRequest(reasonPhrase);
             }
                 item.id = g;
                 _context.TeamItems.Add(item);
                 _context.SaveChanges();
-                return Ok(nameFC);
+                return Ok(item);
 
         }
 
@@ -86,8 +74,6 @@ namespace TeamCrud.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
         public IActionResult Update(Guid id, TeamItem item)
         {
-            Guid g;
-            g = Guid.NewGuid();
             var name = item.name;
             var nameFC = _context.TeamItems.Where(e => e.name == name).ToList();
             var location = item.location;
@@ -98,29 +84,22 @@ namespace TeamCrud.Controllers
                 if (item.players.Count >= 24)
                 {
                     var reasonPhrase = "Too Many Players";
-                    var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent(string.Format("Over 25 players", item.players)),
-                        ReasonPhrase = "Too Many Players"
-                    };
                     return BadRequest(reasonPhrase);
                 }
             }
-            else if (nameFC.Count > 0)
+            else if (wht.Count > 0)
             {
-                var resp = new HttpResponseMessage(HttpStatusCode.NotFound)
-                {
-                    Content = new StringContent("Cannot be the Same Name and Location as another Team"),
-                    ReasonPhrase = "Name and Location cannot be the same for multiple teams"
-                };
-                return BadRequest();
+                var reasonPhrase = "Name and Location cannot be the same for multiple teams";
+                return BadRequest(reasonPhrase);
             }
-            item.id = g;
-            _context.TeamItems.Add(item);
+            var team = _context.TeamItems.Find(id);
+            team.players = item.players;
+            team.name = item.name;
+            team.location = item.location;
+            _context.TeamItems.Update(team);
             _context.SaveChanges();
             return NoContent();
         }
-
         // DELETE api/<controller>/5
         [Microsoft.AspNetCore.Mvc.HttpDelete("{id}")]
         public void Delete(int id)

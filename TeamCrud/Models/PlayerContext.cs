@@ -6,13 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TeamCrud.Models
 {
-    public class TeamContext : DbContext
-         {
-        public TeamContext(DbContextOptions<TeamContext> options)
+    public class PlayerContext : DbContext
+    {
+        public PlayerContext(DbContextOptions<PlayerContext> options)
             : base(options)
         {
         }
-
-        public DbSet<TeamItem> TeamItems { get; set; }
+        public DbSet<PlayerItem> PlayerItems { get; set; }
     }
 }
